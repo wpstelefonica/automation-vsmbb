@@ -12,12 +12,14 @@ class DriverFactory():
 
     def __init__(self) -> None:
         os.environ['WDM_SSL_VERIFY'] = '0'  # Ignorar verificação SSL
+        os.environ['WDM_LOCAL'] = "1"  # Forçar o uso do cache local
 
         options = Options()
         # chrome_options.add_argument("--headless")
         options.add_argument('--log-level-3')  # Disable console log
         # chrome_options.add_experimental_option("detach", True)
-        service = Service(ChromeDriverManager().install())
+        driver_path = ChromeDriverManager().install()
+        service = Service(driver_path)
         self.driver = webdriver.Chrome(service=service, options=options)
 
         # options = Options()

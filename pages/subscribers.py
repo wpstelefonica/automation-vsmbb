@@ -73,8 +73,8 @@ class Subscribers():
         start_time = time.time()
 
         # * Validanting page load time until ready to use by user
-        self.tools.request_tracker()
-        
+        self.tools.wait_all_requests_done()
+
         #! WAIT UNTIL SHOW DATA ON THE TABLES AND GRAPHS
 
         #! Get filtering to get data time
@@ -86,6 +86,8 @@ class Subscribers():
         XHRRequestsFinishedWithError = self.driver.execute_script(
             "return window.pendingXHRRequests.size")
         self._report_data["Requisições com erro"] = XHRRequestsFinishedWithError
+
+        status_and_queries = self.tools.get_queries_script_and_status_response()
 
         if XHRRequestsFinishedWithError:
             print(f"{XHRRequestsFinishedWithError} finish with errors")

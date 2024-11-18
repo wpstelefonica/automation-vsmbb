@@ -14,8 +14,8 @@ driver = DriverFactory().get_driver()
 
 TOTAL_EXECUTION_TIME_FOR_OPENING_DRIVER = time.time() - INITIAL_TIME
 
-PERIOD_FROM = "11/12/2024"
-PERIOD_TO = "11/13/2024"
+PERIOD_FROM = "11/16/2024"
+PERIOD_TO = "11/17/2024"
 
 subscribers_page = Subscribers(driver=driver)
 subscribers_page.start_data_report_collection(
