@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+import datetime
 import time
 
 from utils.tools import Tools
@@ -16,6 +17,20 @@ class Subscribers():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
+            "User and Device Information": None,
+            "Summary of Failure Quantities by UC": None,
+            "Indicator Percentage by Technology": None,
+            "Downlink Data Volume by Technology (Evolution) - KBs": None,
+            "Uplink Data Volume by Technology (Evolution) - KBs": None,
+            "Uplink Data Volume by Technology (Evolution) - KBs": None,
+            "(%) Data Flow - Data Volume Proportion by Technology (Evolution)": None,
+            "(%) Retention by Technology (Evolution)": None,
+            "Cells Used by The User during Selected Time Period - KBs": None,
+            "Map of Cells Used by The User": None,
+            "Distribution of Sessions by Technology by hour - KBs": None,
+            "Detailed User Sessions during Selected Time Period - KBs": None,
+            "Resume Sessions by Technology and Cause for Reclosing": None,
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/assinantes"
@@ -44,31 +59,16 @@ class Subscribers():
         self._report_data["Carregamento da página"] = time.time() - \
             start_validation_time
 
-        # Insert MSISDN value
-        MSISDN_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@name='msisdnInput']")
-        MSISDN_FIELD.send_keys(msisdn)
+        self.tools.insert_text_on_text_input(
+            "//input[@name='msisdnInput']", msisdn)
 
-        # Insert date value
-        FROM_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='fromDateInput']")
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", FROM_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        FROM_DATE_FIELD.send_keys(period_from)
-        # Removing disabled attribute to add or change value on date inputs
-        TO_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='toDateInput']")
-        # Removing disabled attribute to add or change value on date inputs
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", TO_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        TO_DATE_FIELD.send_keys(period_to)
+        self.tools.insert_date_on_date_field(
+            "//input[@formcontrolname='fromDateInput']",
+            "//input[@formcontrolname='toDateInput']",
+            period_from, period_from
+        )
 
-        # Clicking to search msisdn data
-        FILTER_BUTTON = self.driver.find_element(
-            By.XPATH, "//button[contains(@class, 'btnFilter')]")
-        FILTER_BUTTON.click()
+        self.tools.click_on_button("//button[contains(@class, 'btnFilter')]")
         #! Start filtering to get data counting
         start_time = time.time()
 
@@ -84,10 +84,13 @@ class Subscribers():
             start_validation_time
 
         XHRRequestsFinishedWithError = self.driver.execute_script(
-            "return window.pendingXHRRequests.size")
+            "return window.pendingXHRRequests.size + window.XHRRequestsFinishedWithError.size")
         self._report_data["Requisições com erro"] = XHRRequestsFinishedWithError
 
-        status_and_queries = self.tools.get_queries_script_and_status_response()
+        self._report_data = {**self._report_data, **self.tools.subscribers_tables_and_charts_status(
+            msisdn, period_from, period_to)}
 
         if XHRRequestsFinishedWithError:
             print(f"{XHRRequestsFinishedWithError} finish with errors")
+
+        print("STOP")

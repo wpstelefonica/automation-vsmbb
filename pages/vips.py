@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+import datetime
 import time
 
 from utils.tools import Tools
@@ -16,6 +17,7 @@ class Vips():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/vips"
@@ -68,26 +70,14 @@ class Vips():
             start_validation_time
 
         # Insert date value
-        FROM_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='fromDateInput']")
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", FROM_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        FROM_DATE_FIELD.send_keys(period_from)
-        # Removing disabled attribute to add or change value on date inputs
-        TO_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='toDateInput']")
-        # Removing disabled attribute to add or change value on date inputs
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", TO_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        TO_DATE_FIELD.send_keys(period_to)
+        self.tools.insert_date_on_date_field(
+            "//input[@formcontrolname='fromDateInput']",
+            "//input[@formcontrolname='toDateInput']",
+            period_from, period_to
+        )
 
         # Clicking to search cells data
-        FILTER_BUTTON = self.driver.find_element(
-            By.XPATH, "//button[contains(@class, 'btnFilter')]")
-
-        FILTER_BUTTON.click()
+        self.tools.click_on_button("//button[contains(@class, 'btnFilter')]")
 
         #! Start filtering to get data counting
         start_time = time.time()

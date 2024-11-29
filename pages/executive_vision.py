@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+import datetime
 import time
 
 from utils.tools import Tools
@@ -19,6 +20,7 @@ class ExecutiveVision():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/executive-vision"
@@ -52,20 +54,11 @@ class ExecutiveVision():
             start_validation_time
 
         # Insert date value
-        FROM_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='fromDateInput']")
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", FROM_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        FROM_DATE_FIELD.send_keys(period_from)
-        # Removing disabled attribute to add or change value on date inputs
-        TO_DATE_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='toDateInput']")
-        # Removing disabled attribute to add or change value on date inputs
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", TO_DATE_FIELD)
-        # Date format mm/dd/yyyy
-        TO_DATE_FIELD.send_keys(period_to)
+        self.tools.insert_date_on_date_field(
+            "//input[@formcontrolname='fromDateInput']",
+            "//input[@formcontrolname='toDateInput']",
+            period_from, period_to
+        )
 
         start_time = time.time()
 
@@ -77,17 +70,9 @@ class ExecutiveVision():
         ) - start_time
 
         # Insert Sig Regional data
-        SIG_REGIONAL_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='sigRegionalInput']")
-        # Removing disabled attribute to add or change value on field without error
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", SIG_REGIONAL_FIELD)
-        SIG_REGIONAL_FIELD.send_keys(sig_regional)
-        time.sleep(0.5)
-        OPTION_SELECTION = self.driver.find_element(
-            By.XPATH, f"//span[contains(@class, 'mat-option-text') and contains(text(),'{sig_regional}')]")
-        # *  //span[contains(@class, 'mat-option-text') and contains(text(),'SP')]
-        OPTION_SELECTION.click()
+        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+            "//input[@formcontrolname='sigRegionalInput']", sig_regional
+        )
 
         start_time = time.time()
 
@@ -99,17 +84,9 @@ class ExecutiveVision():
             start_time
 
         # Insert UF data
-        UF_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='ufInput']")
-        # Removing disabled attribute to add or change value on field without error
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", UF_FIELD)
-        UF_FIELD.send_keys(uf)
-        time.sleep(0.5)
-        OPTION_SELECTION = self.driver.find_element(
-            By.XPATH, f"//span[contains(@class, 'mat-option-text') and contains(text(),'{uf}')]")
-        # *  //span[contains(@class, 'mat-option-text') and contains(text(),'SP')]
-        OPTION_SELECTION.click()
+        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+            "//input[@formcontrolname='ufInput']", uf
+        )
 
         start_time = time.time()
 
@@ -121,23 +98,12 @@ class ExecutiveVision():
         ) - start_time
 
         # Insert City data
-        CITY_FIELD = self.driver.find_element(
-            By.XPATH, "//input[@formcontrolname='countryInput']")
-        # Removing disabled attribute to add or change value on field without error
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", CITY_FIELD)
-        CITY_FIELD.send_keys(city)
-        time.sleep(0.5)
-        OPTION_SELECTION = self.driver.find_element(
-            By.XPATH, f"//span[contains(@class, 'mat-option-text') and contains(text(),'{city}')]")
-        # *  //span[contains(@class, 'mat-option-text') and contains(text(),'OSASCO')]
-        OPTION_SELECTION.click()
+        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+            "//input[@formcontrolname='countryInput']", city
+        )
 
         # Clicking to search cells data
-        FILTER_BUTTON = self.driver.find_element(
-            By.XPATH, "//button[contains(@class, 'btnFilter')]")
-
-        FILTER_BUTTON.click()
+        self.tools.click_on_button("//button[contains(@class, 'btnFilter')]")
 
         #! Start filtering to get data counting
         start_time = time.time()

@@ -14,8 +14,8 @@ driver = DriverFactory().get_driver()
 
 TOTAL_EXECUTION_TIME_FOR_OPENING_DRIVER = time.time() - INITIAL_TIME
 
-PERIOD_FROM = "11/16/2024"
-PERIOD_TO = "11/17/2024"
+PERIOD_FROM = "11/28/2024"
+PERIOD_TO = "11/29/2024"
 
 subscribers_page = Subscribers(driver=driver)
 subscribers_page.start_data_report_collection(
@@ -40,4 +40,5 @@ reports = {"Assinantes": subscribers_page.get_data_report_collection(),
            "Vips": vips_page.get_data_report_collection(),
            "Células afetadas": affected_cells.get_data_report_collection(),
            "Visão executiva": executive_vision.get_data_report_collection()}
+# reports = {"Visão executiva": executive_vision.get_data_report_collection()}
 ReportGenerator.create_workbook(reports, "VSMBB", True)
