@@ -17,6 +17,20 @@ class Subscribers():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
+            "Tempo de requisições:": None,
+            "Tempo das requisições User and Device Information": None,
+            "Tempo das requisições Summary of Failure Quantities by UC": None,
+            "Tempo das requisições Indicator Percentage by Technology": None,
+            "Tempo das requisições Downlink Data Volume by Technology (Evolution) - KBs": None,
+            "Tempo das requisições Uplink Data Volume by Technology (Evolution) - KBs": None,
+            "Tempo das requisições Uplink Data Volume by Technology (Evolution) - KBs": None,
+            "Tempo das requisições (%) Data Flow - Data Volume Proportion by Technology (Evolution)": None,
+            "Tempo das requisições (%) Retention by Technology (Evolution)": None,
+            "Tempo das requisições Cells Used by The User during Selected Time Period - KBs": None,
+            "Tempo das requisições Map of Cells Used by The User": None,
+            "Tempo das requisições Distribution of Sessions by Technology by hour - KBs": None,
+            "Tempo das requisições Detailed User Sessions during Selected Time Period - KBs": None,
+            "Tempo das requisições Resume Sessions by Technology and Cause for Reclosing": None,
             "User and Device Information": None,
             "Summary of Failure Quantities by UC": None,
             "Indicator Percentage by Technology": None,
@@ -30,7 +44,7 @@ class Subscribers():
             "Distribution of Sessions by Technology by hour - KBs": None,
             "Detailed User Sessions during Selected Time Period - KBs": None,
             "Resume Sessions by Technology and Cause for Reclosing": None,
-            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/assinantes"
@@ -65,7 +79,7 @@ class Subscribers():
         self.tools.insert_date_on_date_field(
             "//input[@formcontrolname='fromDateInput']",
             "//input[@formcontrolname='toDateInput']",
-            period_from, period_from
+            period_from, period_to
         )
 
         self.tools.click_on_button("//button[contains(@class, 'btnFilter')]")

@@ -17,7 +17,7 @@ class Vips():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
-            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/vips"

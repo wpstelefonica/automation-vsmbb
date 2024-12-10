@@ -20,7 +20,7 @@ class ExecutiveVision():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
-            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+            "Data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/executive-vision"
@@ -70,7 +70,7 @@ class ExecutiveVision():
         ) - start_time
 
         # Insert Sig Regional data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='sigRegionalInput']", sig_regional
         )
 
@@ -84,7 +84,7 @@ class ExecutiveVision():
             start_time
 
         # Insert UF data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='ufInput']", uf
         )
 
@@ -98,7 +98,7 @@ class ExecutiveVision():
         ) - start_time
 
         # Insert City data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='countryInput']", city
         )
 

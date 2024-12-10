@@ -1,0 +1,2 @@
+'{"query":"\\nSELECT\\n  \\"sig_regional\\"\\nFROM \\"celulas\\"\\nWHERE \\"__time\\" BETWEEN TIMESTAMP \'2024-11-28 00:00:00\' AND TIMESTAMP \'2024-11-28 23:59:59\'\\nGROUP BY \\"sig_regional\\"\\n","context":{}}'
+'{"query":"\\nSELECT\\n  \\"sig_regional\\"\\nFROM \\"celulas\\"\\nWHERE \\"__time\\" BETWEEN TIMESTAMP \'2024-11-28 00:00:00\' AND TIMESTAMP \'2024-11-29 23:59:59\'\\nGROUP BY \\"sig_regional\\"\\n","context":{}}'

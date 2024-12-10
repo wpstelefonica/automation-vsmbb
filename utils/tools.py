@@ -42,7 +42,9 @@ function newXHR(tracker = null) {
         console.log("request readyState", xhr.readyState);
         console.log("request status", xhr.status);
         if (xhr.readyState === xhr.OPENED && !xhr.contains) {
+            xhr.startTime = performance.now() / 1000;
             window.pendingXHRRequests.add(xhr);
+            
         } else if (xhr.readyState === xhr.HEADERS_RECEIVED) {
             window.pendingXHRRequests.delete(xhr);
         } else if (xhr.readyState === xhr.DONE) {
@@ -50,6 +52,7 @@ function newXHR(tracker = null) {
                 window.XHRRequestsFinishedWithError.add(xhr)
             }
             window.XHRRequestsFinishedNoError.add(xhr)
+            xhr.responseTime = (performance.now() / 1000) - xhr.startTime;
         }
     });
 
@@ -87,6 +90,7 @@ return requests.map((req) => ({
 	responseType: req.responseType,
 	responseText: req.responseText,
 	readyState: req.readyState,
+    responseTime: req.responseTime,
 	data: {
 		url: req.__zone_symbol__xhrTask.data.url,
 		args: req.__zone_symbol__xhrTask.data.args,
@@ -111,6 +115,7 @@ return requests.map((req) => ({
             temp = {
                 "status": request["status"],
                 "query_script": request["data"]["args"][0],
+                "responseTime": request["responseTime"],
             }
             data["no_error_requests"].append(temp)
 
@@ -118,6 +123,7 @@ return requests.map((req) => ({
             temp = {
                 "status": request["status"],
                 "query_script": request["data"]["args"][0],
+                "responseTime": request["responseTime"],
             }
             data["error_requests"].append(temp)
 
@@ -125,12 +131,22 @@ return requests.map((req) => ({
             temp = {
                 "status": request["status"],
                 "query_script": request["data"]["args"][0],
+                "responseTime": request["responseTime"],
             }
             data["pending_requests"].append(temp)
 
         return data
 
-    def set_responses_with_updated_data(self, msisdn: str = None, date_from: str = None, date_to: str = None):
+    def set_responses_with_updated_data(self, msisdn: str = None,
+                                        date_from: str = None,
+                                        date_to: str = None,
+                                        sig_regional: str = None,
+                                        uf: str = None,
+                                        city: str = None,
+                                        cell_name: str = None,
+                                        tecnology: str = None,
+                                        band: str = None,
+                                        ):
         date_to_splited = date_to.split("/")
         date_from_splited = date_from.split("/")
 
@@ -233,7 +249,8 @@ return requests.map((req) => ({
                 for key, model in self.responses_model.items():
                     if query["query_script"] == model:
                         # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
-                        responses_status[key] = True
+                        responses_status[key] = {
+                            "status": True, "responseTime": query["responseTime"]}
 
         if queries_response["error_requests"]:
             queries = queries_response["error_requests"]
@@ -242,7 +259,8 @@ return requests.map((req) => ({
                 for key, model in self.responses_model.items():
                     if query["query_script"] == model:
                         # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
-                        responses_status[key] = False
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
 
         if queries_response["pending_requests"]:
             queries = queries_response["pending_requests"]
@@ -251,7 +269,85 @@ return requests.map((req) => ({
                 for key, model in self.responses_model.items():
                     if query["query_script"] == model:
                         # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
-                        responses_status[key] = False
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
+
+        return responses_status
+
+    def cells_responses_identifier(self, date_from, date_to, sig_regional,
+                                   uf, city, cell_name, tecnology, band) -> list[dict[str, str]]:
+        queries_that_populate_tables = {
+            "getFilterSigRegional": [],
+            "getUserGrouped": ["User and Device Information"],
+            "getUserSessionsDetails": ["Detailed User Sessions during Selected Time Period - KBs"],
+            "getIndicatorData": [
+                "Indicator Percentage by Technology",
+                "Summary of Failure Quantities by UC"
+            ],
+            "getFailResumeByUC": [
+                "Summary of Failure Quantities by UC",
+                "Indicator Percentage by Technology",
+            ],
+            "getLocationsInfo": [
+                "Cells Used by The User during Selected Time Period - KBs",
+                "Map of Cells Used by The User",
+            ],
+            "getCellsUsedbyUser": [
+                "Cells Used by The User during Selected Time Period - KBs",
+                "Map of Cells Used by The User",
+            ],
+            "getSessionsGroupedTime": [
+                "Distribution of Sessions by Technology by hour - KBs",
+                "Downlink Data Volume by Technology (Evolution) - KBs",
+                "Uplink Data Volume by Technology (Evolution) - KBs",
+                "(%) Data Flow - Data Volume Proportion by Technology (Evolution)",
+                "(%) Retention by Technology (Evolution)",
+            ],
+            "getTotalTrafficByTechLine": [
+                "Distribution of Sessions by Technology by hour - KBs",
+                "Downlink Data Volume by Technology (Evolution) - KBs",
+                "Uplink Data Volume by Technology (Evolution) - KBs",
+                "(%) Data Flow - Data Volume Proportion by Technology (Evolution)",
+                "(%) Retention by Technology (Evolution)",
+            ],
+        }
+
+        #! Get queries to check if response is ok
+        queries_response = self.get_queries_script_and_status_response()
+        self.set_responses_with_updated_data(date_from=date_from, date_to=date_to, sig_regional=sig_regional, uf=uf,
+                                             city=city, cell_name=cell_name, tecnology=tecnology, band=band)
+
+        responses_status = {}
+
+        if queries_response["no_error_requests"]:
+            queries = queries_response["no_error_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": True, "responseTime": query["responseTime"]}
+
+        if queries_response["error_requests"]:
+            queries = queries_response["error_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
+
+        if queries_response["pending_requests"]:
+            queries = queries_response["pending_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
 
         return responses_status
 
@@ -291,7 +387,7 @@ return requests.map((req) => ({
         }
 
         # Obtendo os nomes das funções com seus respectivos status
-        request_status = self.subscriber_responses_identifier(
+        request_status = self.cells_responses_identifier(
             msisdn, date_from, date_to)
 
         response = {}
@@ -300,17 +396,93 @@ return requests.map((req) => ({
             for topic, queries_names in tables_and_your_queries.items():
 
                 boolean_status = True
+                max_time = 0
 
                 for query_name in queries_names:
-                    boolean_status = boolean_status and request_status[query_name]
+                    boolean_status = boolean_status and request_status[query_name]["status"]
+                    # Getting the response high time
+                    if request_status[query_name]["responseTime"]:
+                        max_time = request_status[query_name]["responseTime"] if request_status[
+                            query_name]["responseTime"] > max_time else max_time
+                    else:
+                        # No response yet the number will be negative
+                        max_time = -1
 
                 # Checking if the query_name is in the topic, that is, if this
                 # table needs that query to show
                 response[topic] = boolean_status
+                response["Tempo das requisições " +
+                         topic] = max_time
 
         return response
 
-    def insert_text_on_text_input_and_click_in_onption_selection(self, xpath, text):
+    def cells_tables_and_charts_status(self, date_from, date_to, sig_regional,
+                                       uf, city, cell_name, tecnology, band):
+        tables_and_your_queries = {
+            "User and Device Information": ["getFilterSigRegional"],
+            "Detailed User Sessions during Selected Time Period - KBs": [
+                "getUserSessionsDetails"
+            ],
+            "Indicator Percentage by Technology": ["getIndicatorData", "getFailResumeByUC"],
+            "Summary of Failure Quantities by UC": ["getIndicatorData", "getFailResumeByUC"],
+            "Cells Used by The User during Selected Time Period - KBs": [
+                "getLocationsInfo",
+                "getCellsUsedbyUser"
+            ],
+            "Map of Cells Used by The User": ["getLocationsInfo", "getCellsUsedbyUser"],
+            "Distribution of Sessions by Technology by hour - KBs": [
+                "getSessionsGroupedTime",
+                "getTotalTrafficByTechLine",
+            ],
+            "Downlink Data Volume by Technology (Evolution) - KBs": [
+                "getSessionsGroupedTime",
+                "getTotalTrafficByTechLine",
+            ],
+            "Uplink Data Volume by Technology (Evolution) - KBs": [
+                "getSessionsGroupedTime",
+                "getTotalTrafficByTechLine",
+            ],
+            "(%) Data Flow - Data Volume Proportion by Technology (Evolution)": [
+                "getSessionsGroupedTime",
+                "getTotalTrafficByTechLine",
+            ],
+            "(%) Retention by Technology (Evolution)": [
+                "getSessionsGroupedTime",
+                "getTotalTrafficByTechLine",
+            ],
+        }
+
+        # Obtendo os nomes das funções com seus respectivos status
+        request_status = self.cells_responses_identifier(
+            msisdn, date_from, date_to)
+
+        response = {}
+        if request_status:
+            # Iteration by tables and charts
+            for topic, queries_names in tables_and_your_queries.items():
+
+                boolean_status = True
+                max_time = 0
+
+                for query_name in queries_names:
+                    boolean_status = boolean_status and request_status[query_name]["status"]
+                    # Getting the response high time
+                    if request_status[query_name]["responseTime"]:
+                        max_time = request_status[query_name]["responseTime"] if request_status[
+                            query_name]["responseTime"] > max_time else max_time
+                    else:
+                        # No response yet the number will be negative
+                        max_time = -1
+
+                # Checking if the query_name is in the topic, that is, if this
+                # table needs that query to show
+                response[topic] = boolean_status
+                response["Tempo das requisições " +
+                         topic] = max_time
+
+        return response
+
+    def insert_text_on_text_input_and_click_in_option_selection(self, xpath, text):
         web_element = self.driver.find_element(
             By.XPATH, xpath)
         # Removing disabled attribute to add or change value on field without error

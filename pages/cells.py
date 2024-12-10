@@ -23,7 +23,24 @@ class Cells():
             "Carregamento total dos dados": None,
             "Tempo total da validação": None,
             "Requisições com erro": None,
-            "Data": datetime.datetime.now().strftime("%d/%m/%Y, %H:%M:%S"),
+            "Cell Map": None,
+            "Top Cells With Users Affected by Connection without Navigation": None,
+            "% Users Affected by Connection without Navigation (Evolution)": None,
+            "Top Cells ordered by Low Data Volume - KBs": None,
+            "Total Data Volume (Evolution) - KBs": None,
+            "Top Cells With Users Affected by InterRAT Handover Use Cases": None,
+            "Top Cells 4G Data Volume Proportion and Retention": None,
+            "% 4G Data Volume Escoamento (Evolution)": None,
+            "% 4G Retention (Evolution)": None,
+            "Tempo de resposta Top Cells With Users Affected by Connection without Navigation": None,
+            "Tempo de resposta % Users Affected by Connection without Navigation (Evolution)": None,
+            "Tempo de resposta Top Cells ordered by Low Data Volume - KBs": None,
+            "Tempo de resposta Total Data Volume (Evolution) - KBs": None,
+            "Tempo de resposta Top Cells With Users Affected by InterRAT Handover Use Cases": None,
+            "Tempo de resposta Top Cells 4G Data Volume Proportion and Retention": None,
+            "Tempo de resposta % 4G Data Volume Escoamento (Evolution)": None,
+            "Tempo de resposta % 4G Retention (Evolution)": None,
+            "Tempo de resposta Data": datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         }
         self.tools = Tools(self.driver)
         self.URL = "https://cem-connection-mf-telco-webapplications-prod.apps.ocp-01.tdigital-vivo.com.br/#/cem/cem-dashboard/celulas"
@@ -31,7 +48,9 @@ class Cells():
     def get_data_report_collection(self):
         return self._report_data
 
-    def start_data_report_collection(self, period_from: str, period_to: str, sig_regional: str, uf: str, city: str, cell_name: str = "TODO",
+    def start_data_report_collection(self, period_from: str, period_to: str,
+                                     sig_regional: str, uf: str, city: str,
+                                     cell_name: str = "TODO",
                                      tecnology: str = "TODO", band: str = "TODO") -> dict:
         """
             This function begins the data collection of report
@@ -75,7 +94,7 @@ class Cells():
         ) - start_time
 
         # Insert Sig Regional data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='sigRegionalInput']", sig_regional
         )
 
@@ -89,7 +108,7 @@ class Cells():
             start_time
 
         # Insert UF data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='ufInput']", uf
         )
 
@@ -103,7 +122,7 @@ class Cells():
         ) - start_time
 
         # Insert City data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='countryInput']", city
         )
 
@@ -117,7 +136,7 @@ class Cells():
         ) - start_time
 
         # Insert City data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='nameInput']", cell_name
         )
 
@@ -131,7 +150,7 @@ class Cells():
         ) - start_time
 
         # Insert City data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='technologyInput']", tecnology
         )
 
@@ -145,7 +164,7 @@ class Cells():
         ) - start_time
 
         # Insert Band data
-        self.tools.insert_text_on_text_input_and_click_in_onption_selection(
+        self.tools.insert_text_on_text_input_and_click_in_option_selection(
             "//input[@formcontrolname='bandInput']", band
         )
 
@@ -167,6 +186,9 @@ class Cells():
         XHRRequestsFinishedWithError = self.driver.execute_script(
             "return window.pendingXHRRequests.size + window.XHRRequestsFinishedWithError.size")
         self._report_data["Requisições com erro"] = XHRRequestsFinishedWithError
+
+        self._report_data = {**self._report_data, **self.tools.cells_tables_and_charts_status(
+            period_from, period_to, sig_regional, uf, city, cell_name, tecnology, band)}
 
         if XHRRequestsFinishedWithError:
             print(f"{XHRRequestsFinishedWithError} finish with errors")
