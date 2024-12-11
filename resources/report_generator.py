@@ -1,9 +1,11 @@
 import datetime
 import pandas as pd
 import sys
+import os
 
 
 class ReportGenerator():
+
     def __init__(self) -> None:
         pass
 
@@ -24,7 +26,8 @@ class ReportGenerator():
         return report_filename
 
     @staticmethod
-    def transform_data(sheet: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    def transform_data(
+            sheet: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         dictionary = {
             "Descrição": [],
             "Valores": [],
@@ -36,7 +39,10 @@ class ReportGenerator():
         return dictionary
 
     @staticmethod
-    def create_workbook(sheets: dict, report_name, transform_data=False, path: str = "") -> None:
+    def create_workbook(sheets: dict,
+                        report_name,
+                        transform_data=False,
+                        path: str = "") -> None:
         """
         sheets -> It's a dictionary that the key is the name of sheet and value is the data
         report_name -> It's the name of report like VSMBB or ATLAS
@@ -48,8 +54,11 @@ class ReportGenerator():
 
         # full_path = sys.path + report_filename + ".xlsx"
         # full_path = report_filename + ".xlsx"
-        full_path = "C:\\Users\\40418567\\OneDrive - Telefonica\\Documentos\\3. RELATÓRIOS\\" + \
-            report_filename + ".xlsx"
+        user_profile = os.getenv("USERPROFILE")
+        onedrive = os.getenv("ONEDRIVE")
+        full_path = os.path.joint(onedrive, "Documentos", "3. RELATÓRIOS",
+                                  f"{report_filename}.xlsx")
+
         with pd.ExcelWriter(full_path) as writer:
 
             for sheet, data in sheets.items():
@@ -59,4 +68,5 @@ class ReportGenerator():
 
                 data = ReportGenerator.create_dataframe(data)
                 data.to_excel(excel_writer=writer,
-                              sheet_name=sheet, index=False)
+                              sheet_name=sheet,
+                              index=False)

@@ -1,0 +1,25 @@
+import json
+
+query_extracted = '{"query":"\\nSELECT\\n  \\"sig_regional\\"\\nFROM \\"celulas\\"\\nWHERE \\"__time\\" BETWEEN TIMESTAMP \'2024-12-03 00:00:00\' AND TIMESTAMP \'0202-12-03 23:59:59\'\\nGROUP BY \\"sig_regional\\"\\n","context":{}}'
+
+query = '\nSELECT\n  "sig_regional"\nFROM "celulas"\nWHERE "__time" BETWEEN TIMESTAMP \'2024-12-03 00:00:00\' AND TIMESTAMP \'0202-12-03 23:59:59\'\nGROUP BY "sig_regional"\n'
+
+
+def format_query_json(response: str):
+    data = json.loads(response)
+    raw_query = data["query"]
+
+    formatted_query = raw_query.replace("\n", " ").replace("'", '"').strip()
+    return formatted_query
+
+def format_query_str(response: str):
+    formatted_query = response.replace("\n", " ").replace("'", '"').strip()
+    return formatted_query
+
+
+query_extracted = format_query_json(query_extracted)
+query = format_query_str(query)
+
+print(query == query_extracted)
+print(query)
+print(query_extracted)

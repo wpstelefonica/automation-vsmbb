@@ -278,44 +278,67 @@ return requests.map((req) => ({
                                    uf, city, cell_name, tecnology, band) -> list[dict[str, str]]:
         queries_that_populate_tables = {
             "getFilterSigRegional": [],
-            "getUserGrouped": ["User and Device Information"],
-            "getUserSessionsDetails": ["Detailed User Sessions during Selected Time Period - KBs"],
-            "getIndicatorData": [
-                "Indicator Percentage by Technology",
-                "Summary of Failure Quantities by UC"
-            ],
-            "getFailResumeByUC": [
-                "Summary of Failure Quantities by UC",
-                "Indicator Percentage by Technology",
-            ],
-            "getLocationsInfo": [
-                "Cells Used by The User during Selected Time Period - KBs",
-                "Map of Cells Used by The User",
-            ],
-            "getCellsUsedbyUser": [
-                "Cells Used by The User during Selected Time Period - KBs",
-                "Map of Cells Used by The User",
-            ],
-            "getSessionsGroupedTime": [
-                "Distribution of Sessions by Technology by hour - KBs",
-                "Downlink Data Volume by Technology (Evolution) - KBs",
-                "Uplink Data Volume by Technology (Evolution) - KBs",
-                "(%) Data Flow - Data Volume Proportion by Technology (Evolution)",
-                "(%) Retention by Technology (Evolution)",
-            ],
-            "getTotalTrafficByTechLine": [
-                "Distribution of Sessions by Technology by hour - KBs",
-                "Downlink Data Volume by Technology (Evolution) - KBs",
-                "Uplink Data Volume by Technology (Evolution) - KBs",
-                "(%) Data Flow - Data Volume Proportion by Technology (Evolution)",
-                "(%) Retention by Technology (Evolution)",
-            ],
+            "getCellDataFlow": [],
+            "getCellMapDash2": [],
+            "getTopCellDataVolume": [],
+            "getTopCellWithSubscribersInter": [],
+            "getTopCellsByusersCnn": [],
         }
 
         #! Get queries to check if response is ok
         queries_response = self.get_queries_script_and_status_response()
         self.set_responses_with_updated_data(date_from=date_from, date_to=date_to, sig_regional=sig_regional, uf=uf,
                                              city=city, cell_name=cell_name, tecnology=tecnology, band=band)
+
+        responses_status = {}
+
+        if queries_response["no_error_requests"]:
+            queries = queries_response["no_error_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": True, "responseTime": query["responseTime"]}
+
+        if queries_response["error_requests"]:
+            queries = queries_response["error_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
+
+        if queries_response["pending_requests"]:
+            queries = queries_response["pending_requests"]
+
+            for query in queries:
+                for key, model in self.responses_model.items():
+                    if query["query_script"] == model:
+                        # responses_status[key] == "OK" if query["status"] >= 200 or query["status"] <= 299 else "NOK"
+                        responses_status[key] = {
+                            "status": False, "responseTime": query["responseTime"]}
+
+        return responses_status
+    
+    def affected_cells_responses_identifier(self, date_from, date_to, sig_regional,
+                                   uf, city) -> list[dict[str, str]]:
+        queries_that_populate_tables = {
+            "getFilterSigRegional": [],
+            "getCellDataFlow": [],
+            "getCellMapDash2": [],
+            "getTopCellDataVolume": [],
+            "getTopCellWithSubscribersInter": [],
+            "getTopCellsByusersCnn": [],
+        }
+
+        #! Get queries to check if response is ok
+        queries_response = self.get_queries_script_and_status_response()
+        self.set_responses_with_updated_data(date_from=date_from, date_to=date_to, sig_regional=sig_regional, uf=uf,
+                                             city=city)
 
         responses_status = {}
 
@@ -454,7 +477,7 @@ return requests.map((req) => ({
 
         # Obtendo os nomes das funções com seus respectivos status
         request_status = self.cells_responses_identifier(
-            msisdn, date_from, date_to)
+            date_from, date_to, sig_regional, uf, city, cell_name, tecnology, band)
 
         response = {}
         if request_status:

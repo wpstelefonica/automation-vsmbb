@@ -8,6 +8,7 @@ from utils.tools import Tools
 
 
 class AffectedCells():
+
     def __init__(self, driver: webdriver.Chrome) -> None:
         if not driver:
             raise ValueError("The Driver is not avaliable")
@@ -28,7 +29,9 @@ class AffectedCells():
     def get_data_report_collection(self):
         return self._report_data
 
-    def start_data_report_collection(self, period_from: str, period_to: str, sig_regional: str, uf: str, city: str) -> dict:
+    def start_data_report_collection(self, period_from: str, period_to: str,
+                                     sig_regional: str, uf: str,
+                                     city: str) -> dict:
         """
             This function begins the data collection of report
         """
@@ -56,9 +59,7 @@ class AffectedCells():
         # Insert date value
         self.tools.insert_date_on_date_field(
             "//input[@formcontrolname='fromDateInput']",
-            "//input[@formcontrolname='toDateInput']",
-            period_from, period_to
-        )
+            "//input[@formcontrolname='toDateInput']", period_from, period_to)
 
         start_time = time.time()
 
@@ -71,8 +72,7 @@ class AffectedCells():
 
         # Insert Sig Regional data
         self.tools.insert_text_on_text_input_and_click_in_option_selection(
-            "//input[@formcontrolname='sigRegionalInput']", sig_regional
-        )
+            "//input[@formcontrolname='sigRegionalInput']", sig_regional)
 
         start_time = time.time()
 
@@ -87,18 +87,19 @@ class AffectedCells():
         UF_FIELD = self.driver.find_element(
             By.XPATH, "//input[@formcontrolname='ufInput']")
         # Removing disabled attribute to add or change value on field without error
-        self.driver.execute_script(
-            "arguments[0].removeAttribute('disabled')", UF_FIELD)
+        self.driver.execute_script("arguments[0].removeAttribute('disabled')",
+                                   UF_FIELD)
         UF_FIELD.send_keys(uf)
         time.sleep(0.5)
         OPTION_SELECTION = self.driver.find_element(
-            By.XPATH, f"//span[contains(@class, 'mat-option-text') and contains(text(),'{uf}')]")
+            By.XPATH,
+            f"//span[contains(@class, 'mat-option-text') and contains(text(),'{uf}')]"
+        )
         # *  //span[contains(@class, 'mat-option-text') and contains(text(),'SP')]
         OPTION_SELECTION.click()
 
         self.tools.insert_text_on_text_input_and_click_in_option_selection(
-            "//input[@formcontrolname='ufInput']", uf
-        )
+            "//input[@formcontrolname='ufInput']", uf)
 
         start_time = time.time()
 
@@ -111,8 +112,7 @@ class AffectedCells():
 
         # Insert City data
         self.tools.insert_text_on_text_input_and_click_in_option_selection(
-            "//input[@formcontrolname='countryInput']", city
-        )
+            "//input[@formcontrolname='countryInput']", city)
 
         # Clicking to search cells data
         self.tools.click_on_button("//button[contains(@class, 'btnFilter')]")
@@ -129,6 +129,13 @@ class AffectedCells():
         self._report_data["Tempo total da validação"] = time.time() - \
             start_validation_time
 
+        self._report_data = {
+            **self._report_data,
+            **self.tools.affected_cells_responses_identifier(
+                period_from, period_to, sig_regional, uf, city)
+        }
+
         XHRRequestsFinishedWithError = self.driver.execute_script(
             "return window.pendingXHRRequests.size")
-        self._report_data["Requisições com erro"] = XHRRequestsFinishedWithError
+        self._report_data[
+            "Requisições com erro"] = XHRRequestsFinishedWithError
