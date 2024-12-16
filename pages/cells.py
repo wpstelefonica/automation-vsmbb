@@ -15,59 +15,59 @@ class Cells():
         self.driver = driver
         self._report_data = {
             "Carregamento da página":
-            None,
+            -1,
             "Carregamento do filtro SIG REGIONAL":
-            None,
+            -1,
             "Carregamento do filtro UF":
-            None,
+            -1,
             "Carregamento do filtro Município":
-            None,
+            -1,
             "Carregamento do filtro CellName":
-            None,
+            -1,
             "Carregamento do filtro Technology":
-            None,
+            -1,
             "Carregamento do filtro Band":
-            None,
+            -1,
             "Carregamento total dos dados":
-            None,
+            -1,
             "Tempo total da validação":
-            None,
+            -1,
             "Requisições com erro":
-            None,
+            0,
             "Cell Map":
-            None,
+            False,
             "Top Cells With Users Affected by Connection without Navigation":
-            None,
+            False,
             "% Users Affected by Connection without Navigation (Evolution)":
-            None,
+            False,
             "Top Cells ordered by Low Data Volume - KBs":
-            None,
+            False,
             "Total Data Volume (Evolution) - KBs":
-            None,
+            False,
             "Top Cells With Users Affected by InterRAT Handover Use Cases":
-            None,
+            False,
             "Top Cells 4G Data Volume Proportion and Retention":
-            None,
+            False,
             "% 4G Data Volume Escoamento (Evolution)":
-            None,
+            False,
             "% 4G Retention (Evolution)":
-            None,
+            False,
             "Tempo de resposta Top Cells With Users Affected by Connection without Navigation":
-            None,
+            False,
             "Tempo de resposta % Users Affected by Connection without Navigation (Evolution)":
-            None,
+            False,
             "Tempo de resposta Top Cells ordered by Low Data Volume - KBs":
-            None,
+            False,
             "Tempo de resposta Total Data Volume (Evolution) - KBs":
-            None,
+            False,
             "Tempo de resposta Top Cells With Users Affected by InterRAT Handover Use Cases":
-            None,
+            False,
             "Tempo de resposta Top Cells 4G Data Volume Proportion and Retention":
-            None,
+            False,
             "Tempo de resposta % 4G Data Volume Escoamento (Evolution)":
-            None,
+            False,
             "Tempo de resposta % 4G Retention (Evolution)":
-            None,
+            False,
             "Data":
             datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         }
@@ -217,8 +217,15 @@ class Cells():
 
         self._report_data = {
             **self._report_data,
-            **self.tools.cells_tables_and_charts_status(
-                period_from, period_to, sig_regional, uf, city, cell_name, tecnology, band)
+            **self.tools.tables_and_charts_status(report="cells",
+                                                  date_from=period_from,
+                                                  date_to=period_to,
+                                                  sig_regional=sig_regional,
+                                                  uf=uf,
+                                                  city=city,
+                                                  cell_name=cell_name,
+                                                  tecnology=tecnology,
+                                                  band=band)
         }
 
         if XHRRequestsFinishedWithError:

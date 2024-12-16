@@ -56,8 +56,11 @@ class ReportGenerator():
         # full_path = report_filename + ".xlsx"
         user_profile = os.getenv("USERPROFILE")
         onedrive = os.getenv("ONEDRIVE")
-        full_path = os.path.joint(onedrive, "Documentos", "3. RELATÓRIOS",
-                                  f"{report_filename}.xlsx")
+        full_path = os.path.join(onedrive, "Documentos", "3. RELATÓRIOS",
+                                 f"{report_filename}.xlsx")
+
+        directory = os.path.dirname(full_path)
+        os.makedirs(directory, exist_ok=True)
 
         with pd.ExcelWriter(full_path) as writer:
 
